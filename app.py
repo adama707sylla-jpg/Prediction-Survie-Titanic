@@ -1,55 +1,86 @@
-import streamlit as st
-import pandas as pd
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+from pydantic import BaseModel, create_model
 import joblib
+import pandas as pd
+import numpy as np
+from typing import Any
 
-# Configuration de la page
-st.set_page_config(page_title="Titanic Survival Predictor", page_icon="🚢")
+# Charger le modele
+MODEL_PATH = "modele.pkl"
+API_TITLE  = "API Prédiction Survie Titanic"
 
-st.title("Prédicteur de Survie - Titanic")
-st.write("Entrez les informations du passager pour tester les capacités de prédiction du modèle.")
 
-# Chargement du modèle sauvegardé
-try:
-    model = joblib.load("modele.pkl")
-except:
-    st.error("Erreur : Le fichier 'modele.pkl' est introuvable. Vérifiez l'emplacement du fichier.")
+# Charger le modèle
+model = joblib.load(MODEL_PATH)
 
-# Création de l'interface avec deux colonnes
-col1, col2 = st.columns(2)
+# Récupérer automatiquement les features du modèle
+def get_features():
+    # Récupère les noms de colonnes depuis le preprocesseur
+    try:
+        feature_names = (
+            model.named_steps['preprocessor']
+            .transformers_[0][2].tolist() +
+            model.named_steps['preprocessor']
+            .transformers_[1][2].tolist()
+        )
+    except:
+        feature_names = []
+    return feature_names
 
-with col1:
-    pclass = st.selectbox("Classe du voyageur (1: Haute, 3: Basse)", [1, 2, 3])
-    sex = st.selectbox("Sexe", ["male", "female"])
-    age = st.slider("Âge", 0, 80, 25)
+features = get_features()
 
-with col2:
-    sibsp = st.number_input("Nombre de frères/sœurs & époux à bord", 0, 10, 0)
-    parch = st.number_input("Nombre de parents & enfants à bord", 0, 10, 0)
-    fare = st.number_input("Prix du billet (Fare)", 0.0, 512.0, 32.0)
-    embarked = st.selectbox("Port d'embarquement", ["S", "C", "Q"])
+# Générer dynamiquement la classe de données
+fields = {f: (Any, 0) for f in features}
+DynamicInput = create_model("DynamicInput", **fields)
 
-# Bouton de prédiction
-if st.button("Lancer la prédiction"):
-    # Création du DataFrame pour le modèle (doit avoir les mêmes colonnes que X_train)
-    input_df = pd.DataFrame({
-        'Pclass': [pclass],
-        'Sex': [sex],
-        'Age': [age],
-        'SibSp': [sibsp],
-        'Parch': [parch],
-        'Fare': [fare],
-        'Embarked': [embarked]
-    })
+# Créer l'app
+app = FastAPI(title=API_TITLE)
 
-    input_df['family'] = input_df['SibSp'] + input_df['Parch']
-    
-    # Exécution de la prédiction
-    prediction = model.predict(input_df)
-    probability = model.predict_proba(input_df)
-    
-    # Affichage du résultat
-    st.divider()
-    if prediction[0] == 1:
-        st.success(f"🎉 Le passager aurait probablement SURVÉCU (Probabilité : {probability[0][1]:.2%})")
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+
+@app.get("/")
+def accueil():
+    return {
+        "message": f"{API_TITLE} operationnelle !",
+        "features": features,
+        "total": len(features)
+    }
+
+@app.get("/features")
+def voir_features():
+    return {
+        "features": features,
+        "total": len(features)
+    }
+
+@app.post("/predict")
+def predire(data: DynamicInput):
+    # Convertir en DataFrame
+    df = pd.DataFrame([data.dict()])
+
+    # Prédire
+    prediction = model.predict(df)[0]
+
+    # Adapter le résultat selon le type de modèle
+    if hasattr(model, 'classes_'):
+        # Classification
+        proba = model.predict_proba(df)[0].max()
+        return {
+            "prediction": str(prediction),
+            "confiance": round(float(proba), 4),
+            "type": "classification"
+        }
     else:
-        st.error(f"💀 Le passager n'aurait probablement PAS survécu (Probabilité de survie : {probability[0][1]:.2%})")
+        # Régression
+        return {
+            "prediction": round(float(prediction), 2),
+            "type": "regression"
+        }

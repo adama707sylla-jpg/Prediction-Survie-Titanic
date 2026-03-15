@@ -54,7 +54,7 @@ def pipeline_nettoyage_modele(df_training):
     #Pipeline nettoyage + modele pour le j'ai choisi Gradient() je le change en fonction du projet
     modele_pipeline = Pipeline(steps=[
         ('preprocessor',preprocessor),
-        ('regressor',RandomForestClassifier(n_estimators=100, random_state=42))
+        ('regressor',RandomForestClassifier(n_estimators=200, max_depth=4, random_state=42))
 
     ])
 
@@ -280,6 +280,9 @@ def optimiser_modele(algo, parametre, X, y, cv=5):
 
 
     return grid.best_estimator_
+
+
+
 
 
 
