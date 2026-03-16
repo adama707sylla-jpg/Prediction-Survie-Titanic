@@ -1,0 +1,34 @@
+name: CI/CD Pipeline — Titanic API
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+
+  test:
+    name: 🧪 Tests pytest
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+      - run: pip install -r requirements.txt pytest httpx
+      - run: pytest test_app.py -v
+
+  docker:
+    name: 🐋 Build Docker
+    runs-on: ubuntu-latest
+    needs: test
+    steps:
+      - uses: actions/checkout@v3
+      - run: docker build -t api-titanic .
+
+  deploy:
+    name: 🚀 Deploy Render
+    runs-on: ubuntu-latest
+    needs: docker
+    steps:
+      - name: Trigger Render
+        run: curl -X POST ${{ secrets.RENDER_DEPLOY_HOOK }}
