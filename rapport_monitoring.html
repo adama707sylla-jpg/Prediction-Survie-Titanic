@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Monitoring Titanic</title>
+    <style>
+        body { font-family: Arial; margin: 40px; background: #f8f9fa; }
+        h1 { color: #2c3e50; }
+        h2 { color: #3498db; }
+        .card { background: white; padding: 20px; margin: 10px 0;
+                 border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .ok { color: green; font-weight: bold; }
+        .warn { color: orange; font-weight: bold; }
+        table { width: 100%; border-collapse: collapse; }
+        th { background: #3498db; color: white; padding: 10px; }
+        td { padding: 8px; border-bottom: 1px solid #ddd; text-align: center; }
+    </style>
+</head>
+<body>
+    <h1>📊 Rapport Monitoring — Titanic</h1>
+
+    <div class="card">
+        <h2>📁 Données</h2>
+        <p>Référence (train) : <b>714 lignes</b></p>
+        <p>Production (test) : <b>331 lignes</b></p>
+    </div>
+
+    <div class="card">
+        <h2>📈 Comparaison par feature</h2>
+        <table>
+            <tr>
+                <th>Feature</th>
+                <th>Moyenne Référence</th>
+                <th>Moyenne Production</th>
+                <th>Différence %</th>
+                <th>Statut</th>
+            </tr>
+            <tr><td>Pclass</td><td>2.24</td><td>2.14</td><td>4.2%</td><td class='ok'>✅ OK</td></tr><tr><td>Sex</td><td>0.37</td><td>0.38</td><td>5.0%</td><td class='ok'>✅ OK</td></tr><tr><td>Age</td><td>29.70</td><td>30.18</td><td>1.6%</td><td class='ok'>✅ OK</td></tr><tr><td>SibSp</td><td>0.51</td><td>0.48</td><td>5.7%</td><td class='ok'>✅ OK</td></tr><tr><td>Parch</td><td>0.43</td><td>0.40</td><td>7.6%</td><td class='ok'>✅ OK</td></tr><tr><td>Fare</td><td>34.69</td><td>40.98</td><td>18.1%</td><td class='ok'>✅ OK</td></tr>
+        </table>
+    </div>
+</body>
+</html>

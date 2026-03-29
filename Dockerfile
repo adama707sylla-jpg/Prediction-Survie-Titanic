@@ -8,9 +8,9 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY modele.pkl .
 COPY mon_outillage.py .
 COPY app.py .
-#COPY interface.html .
+COPY config.py .
 
-CMD ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "10000"]
+CMD ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "8000"]
 
 # uvicorn : serveur web
 # app:app  | fichier app.py, object app

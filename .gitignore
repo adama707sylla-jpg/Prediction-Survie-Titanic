@@ -6,3 +6,6 @@ __pycache__/
 appint.py
 
 
+__pycache__/
+
+*.csv
