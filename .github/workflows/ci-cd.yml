@@ -1,4 +1,4 @@
-name: CI/CD Pipeline — Titanic API
+name: CI/CD — TITANIC API
 
 on:
   push:
@@ -54,6 +54,6 @@ jobs:
               --password-stdin 718100329950.dkr.ecr.eu-west-3.amazonaws.com
             docker stop titanic-mlops || true
             docker rm titanic-mlops || true
-            docker pull 718100329950.dkr.ecr.eu-west-3.amazonaws.com/ia-immobiliere:latest
-            docker run -d -p 8000:8000 --name titanic-mlops \
+            docker pull 718100329950.dkr.ecr.eu-west-3.amazonaws.com/titanic-mlops:latest
+            docker run -d -p 8000:8000 --name nlp-api \
               718100329950.dkr.ecr.eu-west-3.amazonaws.com/titanic-mlops:latest
