@@ -55,5 +55,5 @@ jobs:
             docker stop titanic-mlops || true
             docker rm titanic-mlops || true
             docker pull 718100329950.dkr.ecr.eu-west-3.amazonaws.com/titanic-mlops:latest
-            docker run -d -p 8002:8000 --name titanic \
+            docker run -d -p 8002:8000 --name titan \
               718100329950.dkr.ecr.eu-west-3.amazonaws.com/titanic-mlops:latest
